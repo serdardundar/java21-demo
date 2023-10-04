@@ -10,24 +10,28 @@ class SealedTypesTest {
         assertEquals("woof", communicate(new Dog()));
         assertEquals("meow", communicate(new Cat()));
         assertEquals("chirp", communicate(new Bird()));
+
+        assertEquals("woof", communicateWithNewSwitch(new Dog()));
+        assertEquals("meow", communicateWithNewSwitch(new Cat()));
+        assertEquals("chirp", communicateWithNewSwitch(new Bird()));
     }
 
-    sealed static class Animal permits Cat, Dog{}
+    sealed interface Animal permits Cat, Dog, Bird{}
 
-    static final class Cat extends Animal {
+    static final class Cat implements Animal {
         String meow() {
             return "meow";
         }
     }
 
-    static final class Dog extends Animal {
+    static final class Dog implements Animal {
         String bark() {
             return "woof";
         }
     }
 
     // Compiler error
-    static class Bird extends Animal {
+    static final class Bird implements Animal {
         String chirp() {
             return "chirp";
         }
@@ -41,6 +45,17 @@ class SealedTypesTest {
         if (animal instanceof Cat cat) {
             message = cat.meow();
         }
+        if (animal instanceof Bird bird) {
+            message = bird.chirp();
+        }
         return message;
+    }
+
+    String communicateWithNewSwitch (Animal animal) {
+        return switch (animal) {
+            case Cat cat -> cat.meow();
+            case Dog dog -> dog.bark();
+            case Bird bird -> bird.chirp();
+        };
     }
 }
